@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《无期迷途》分析报告 - A4 完整交互版</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <style>
+        :root {
+            --ptn-red: #bb0a0a;
+            --ptn-dark-red: #5e0505;
+            --ptn-bg: #0d0d0f;
+            --ptn-panel: rgba(20, 20, 22, 0.95);
+            --ptn-border: #444;
+            --ptn-gray: #8e8e8e;
+            --main-font: "NSimSun", "新宋体", "SimSun", serif;
+        }
+
+        /* 平滑滚动功能 */
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0; padding: 40px 0;
+            background-color: #050505;
+            background-image: linear-gradient(rgba(187,10,10,0.03) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(187,10,10,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: #d1d1d1;
+            font-family: var(--main-font);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            background: var(--ptn-panel);
+            border: 1px solid var(--ptn-border);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            margin-bottom: 40px;
+            padding: 20mm;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            border-left: 5px solid var(--ptn-red);
+            padding-left: 20px; margin-bottom: 25px;
+        }
+        .section-header h2 { font-size: 1.8rem; margin: 0; color: #fff; letter-spacing: 4px; }
+        .section-header span { color: var(--ptn-red); font-size: 0.8rem; font-weight: bold; }
+
+        .content-box {
+            border: 1px solid #333;
+            background: rgba(255,255,255,0.01);
+            padding: 20px; height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 目录特有样式 */
+        .toc-list { list-style: none; padding: 0; margin-top: 50px; }
+        .toc-item { 
+            margin-bottom: 20px; 
+            border-bottom: 1px dashed #333;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            transition: 0.3s;
+        }
+        .toc-item:hover { border-bottom-color: var(--ptn-red); }
+        .toc-link { 
+            text-decoration: none; 
+            color: #ccc; 
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .toc-link:hover { color: #fff; }
+        .toc-link span { color: var(--ptn-red); font-size: 0.8rem; font-weight: bold; }
+        .toc-page-num { color: var(--ptn-red); font-weight: bold; }
+
+        .usp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .usp-item { border: 1px solid #2a2a2a; padding: 15px; background: rgba(255,255,255,0.03); }
+        .usp-item h4 { color: var(--ptn-red); margin: 0 0 8px 0; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+
+        #radar-container { width: 100%; height: 380px; margin-top: 10px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 15px; }
+        th { background: var(--ptn-dark-red); color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #2a2a2a; }
+        .highlight { color: var(--ptn-red); font-weight: bold; }
+
+        .flow-container { display: flex; flex-direction: column; gap: 25px; padding: 10px 0; }
+        .flow-row { display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .flow-node { width: 120px; padding: 10px; border: 1px solid #555; background: #1a1a1c; text-align: center; font-size: 0.8rem; position: relative; }
+        .flow-arrow { color: var(--ptn-red); font-weight: bold; }
+        .tag { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.65rem; padding: 2px 6px; white-space: nowrap; }
+        .tag-excitement { background: var(--ptn-red); color: white; }
+        .tag-friction { background: #555; color: #eee; }
+        .tag-emotion { border: 1px solid var(--ptn-red); color: var(--ptn-red); }
+
+        /* 商业化样式 */
+        .biz-metric { display: flex; justify-content: space-between; margin-bottom: 15px; background: #161618; padding: 15px; border-left: 4px solid var(--ptn-red); }
+        .biz-label { color: var(--ptn-gray); font-size: 0.8rem; }
+        .biz-value { color: #fff; font-weight: bold; font-size: 1.1rem; }
+
+        .footer-note { position: absolute; bottom: 15mm; right: 20mm; font-size: 0.7rem; color: #555; }
+        
+        .bg-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            height: 500px;
+            transform: translate(-50%, -50%);
+            opacity: 0.5;
+            pointer-events: none;
+            background-image: url("logo-icon.png");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain;
+            z-index: 0;
+        }
+        .insert-img {
+         display: block;
+         width: 40%;       /* 缩放比例 */
+         margin: 24px auto;
+    object-fit: contain;
+}
+
+        /* --- 新增金字塔 CSS --- */
+        .pyramid-wrapper {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pyramid-layer {
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--ptn-red);
+            margin-bottom: 5px;
+            position: relative;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: bold;
+            background: rgba(187, 10, 10, 0.1);
+            transition: 0.3s;
+        }
+        .pyramid-layer:hover { background: rgba(187, 10, 10, 0.25); }
+        .layer-mental { width: 40%; clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%); background: rgba(187, 10, 10, 0.4); }
+        .layer-core { width: 70%; clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%); background: rgba(187, 10, 10, 0.25); }
+        .layer-base { width: 95%; clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%); background: rgba(187, 10, 10, 0.1); }
+        .layer-tag { position: absolute; left: -100px; color: var(--ptn-red); font-size: 0.7rem; width: 80px; text-align: right; border-right: 1px solid var(--ptn-red); padding-right: 8px; }
+    </style>
+</head>
+<body>
+    <div class="bg-watermark"></div>
+
+    <div class="a4-page" id="page-01">
+        <div style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <div style="border: 2px solid #333; padding: 60px 40px; text-align:center; width:80%;">
+                <div style="color: var(--ptn-red); letter-spacing: 5px; margin-bottom: 15px;">CLASSIFIED // MBCC-REPORT</div>
+                <h1 style="font-size: 3.5rem; margin: 0; color: #fff;">《无期迷途》</h1>
+                <h3 style="font-weight: lighter; color: #888;">全维度分析与逻辑架构报告</h3>
+                <div style="margin-top: 80px; font-size: 0.9rem; line-height: 2;">
+                    <p>MBCC Milano Department</p>
+                    <p>Analysist: KY</p>
+                    <p>日期：2026.01</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-note">PAGE 01 / INTERNAL USE ONLY</div>
+    </div>
+
+    <div class="a4-page" id="page-toc">
+        <div class="section-header">
+            <span>TABLE OF CONTENTS</span>
+            <h2>报告目录</h2>
+        </div>
+        <div class="content-box">
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <a href="#page-core" class="toc-link"><span>PHASE 01</span> 游戏核心概览与USP</a>
+                    <span class="toc-page-num">P.03</span>
+                </li>
+                <li class="toc-item">
+                    <a href="#page-data" class="toc-link"><span>PHASE 02</span> 多维玩家画像偏好分析</a>
+                    <span class="toc-page-num">P.04</span>
+                </li>
+                <li class="toc-item">
+                    <a href="#page-comp" class="toc-link"><span>PHASE 03</span> 同类产品差异化竞争分析</a>
+                    <span class="toc-page-num">P.05</span>
+                </li>
+                <li class="toc-item">
+                    <a href="#page-path" class="toc-link"><span>PHASE 04</span> 玩家体验路径拆解</a>
+                    <span class="toc-page-num">P.06</span>
+                </li>
+                <li class="toc-item">
+                    <a href="#page-biz" class="toc-link"><span>PHASE 05</span> 商业化价值与市场营收分析</a>
+                    <span class="toc-page-num">P.07</span>
+                </li>
+                <li class="toc-item">
+                    <a href="#page-final" class="toc-link"><span>PHASE 06</span> 核心结论与未来洞察</a>
+                    <span class="toc-page-num">P.08</span>
+                </li>
+            </ul>
+            <div style="margin-top: 60px; padding: 25px; border: 1px solid #333; background: rgba(255,255,255,0.02);">
+                <p style="margin: 0; color: #666; font-size: 0.85rem; line-height: 1.6;">
+                    <strong>阅读指南：</strong><br>
+                    本报告旨在拆解《无期迷途》在塔防赛道中的差异化突围路径, 个人观点仅供实习使用。
+                </p>
+            </div>
+        </div>
+        <div class="footer-note">PAGE 02 / MBCC-INDEX</div>
+    </div>
+
+    <div class="a4-page" id="page-core">
+        <div class="section-header">
+            <span>PHASE 01 // CORE POSITIONING</span>
+            <h2>游戏核心概览与USP</h2>
+            <img src="usp-chart.png" class="insert-img">
+        </div>
+        <div class="content-box">
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1; border-right: 1px solid #333; padding-right: 20px;">
+                    <p style="color: var(--ptn-red); font-weight: bold;">[ 基础定义 ]</p>
+                    <p style="font-size: 0.9rem;">玩法：半即时策略塔防 + 角色养成</p>
+                    <p style="font-size: 0.9rem;">风格：末世哥特 / 暗黑美学 / 心理探究</p>
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+                    <p style="font-size: 0.85rem; line-height: 1.8; color: var(--ptn-gray);">
+                        本作通过“MBCC局长”视角，将玩家置于人性道德的灰色地带，建立起极强的情感代入，不仅是一款塔防，更是沉浸式叙事载体。
+                    </p>
+                </div>
+                <div style="flex: 1.5;">
+                    <div class="usp-grid">
+                        <div class="usp-item">
+                            <h4>叙事/玩法融合</h4>
+                            <p style="font-size: 0.75rem; color:#aaa;">战斗不再是孤立数值挑战，而是作为剧情高潮延伸，实现“打中有戏”。</p>
+                        </div>
+                        <div class="usp-item">
+                            <h4>系统化角色载体</h4>
+                            <p style="font-size: 0.75rem; color:#aaa;">禁闭者背后的审查系统是世界观补全的关键碎片，強化情感羁绊。</p>
+                        </div>
+                        <div class="usp-item">
+                            <h4>战术决策深度</h4>
+                            <p style="font-size: 0.75rem; color:#aaa;">即时挪位、破核机制，打破传统塔防“摆完挂机”的枯燥感。</p>
+                        </div>
+                        <div class="usp-item">
+                            <h4>目标用户画像</h4>
+                            <p style="font-size: 0.75rem; color:#aaa;">精准打击：对叙事要求极高、追求差异化审美的成年中重度策略受众。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pyramid-wrapper">
+                <div style="margin-bottom: 15px; letter-spacing: 2px; font-size: 0.75rem; color: #666;">CORE VALUE ARCHITECTURE / 核心价值架构</div>
+                <div class="pyramid-layer layer-mental">
+                    <span class="layer-tag">精神层<br>(差异卖点)</span>
+                    人性张力的代入与救赎悬念
+                </div>
+                <div class="pyramid-layer layer-core">
+                    <span class="layer-tag">核心层<br>(体验卖点)</span>
+                    高压力策略 + 高信息密度叙事
+                </div>
+                <div class="pyramid-layer layer-base">
+                    <span class="layer-tag">基础层<br>(入口卖点)</span>
+                    美术风格 / 暗黑审美
+                </div>
+            </div>
+        </div>
+        <div class="footer-note">PAGE 03 / MBCC-CORE</div>
+    </div>
+
+    <div class="a4-page" id="page-data">
+        <div class="section-header">
+            <span>PHASE 02 // USER PROFILING</span>
+            <h2>多维玩家画像偏好分析</h2>
+        </div>
+        <div class="content-box">
+            <div style="display: flex; flex-direction: column;">
+                <div id="radar-container"></div>
+                <div style="margin-top: 20px; border: 1px solid #333; padding: 20px; background: rgba(0,0,0,0.2);">
+                    <h4 style="color: var(--ptn-red); margin-top:0;"> 留存动机 analysis：</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem;">
+                        <div>• 追求剧本后续的不可预测性</div>
+                        <div>• 解锁角色档案产生的“占有欲”</div>
+                        <div>• 高难副本（破碎防线）成就感</div>
+                        <div>• UI/BGM 营造的独特审美愉悦</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-note">PAGE 04 / MBCC-DATA</div>
+    </div>
+
+    <div class="a4-page" id="page-comp">
+        <div class="section-header">
+            <span>PHASE 03 // COMPETITION</span>
+            <h2>同类产品差异化竞争分析</h2>
+        </div>
+        <div class="content-box">
+            <table>
+                <thead>
+                    <tr><th>对比维度</th><th>传统二次元塔防</th><th>《无期迷途》差异化优势</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="highlight">视觉风格</span></td><td>明快、二次元幻想风格</td><td>重未来工业感、精神链接、罪恶都市美学</td></tr>
+                    <tr><td><span class="highlight">角色交互</span></td><td>看板娘互动、送礼好感度</td><td><span class="highlight">审查系统：</span>揭露罪名带来的权力張力</td></tr>
+                    <tr><td><span class="highlight">战斗逻辑</span></td><td>固定位置部署</td><td><span class="highlight">自由挪位：</span>操作密度极高，即时反馈强</td></tr>
+                    <tr><td><span class="highlight">叙事深度</span></td><td>宏大叙事、拯救世界</td><td>微观叙事、聚焦个体的扭曲与救赎</td></tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 30px; background: rgba(187, 10, 10, 0.1); padding: 15px; border: 1px dashed var(--ptn-red); font-size: 0.9rem;">
+                <strong>核心策略：</strong>应继续深挖“禁闭者管理”的情感体验，这是在大厂包围下的制胜点。
+            </div>
+        </div>
+        <div class="footer-note">PAGE 05 / MBCC-COMPETE</div>
+    </div>
+
+    <div class="a4-page" id="page-path">
+        <div class="section-header">
+            <span>PHASE 04 // EXPERIENCE PATH</span>
+            <h2>玩家体验路径拆解</h2>
+        </div>
+        <div class="content-box">
+            <p style="color: var(--ptn-red); font-weight: bold; margin-bottom: 30px;">[ 玩家生命周期体验流 ]</p>
+            <div class="flow-container">
+                <div class="flow-row">
+                    <div class="flow-node">首次登陆<span class="tag tag-emotion">期待</span></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node">新手教学<span class="tag tag-friction">系统熟悉</span></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node">第一次抽卡<span class="tag tag-excitement">视觉冲击</span></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-node">第一章冲突<span class="tag tag-emotion">剧情震惊</span></div>
+                </div>
+                <div style="text-align: right; padding-right: 55px; color: var(--ptn-red);">↓</div>
+                <div class="flow-row">
+                    <div class="flow-node">回坑动机<span class="tag tag-emotion">情感牵引</span></div>
+                    <div class="flow-arrow">←</div>
+                    <div class="flow-node">支线探索<span class="tag tag-excitement">解谜满足</span></div>
+                    <div class="flow-arrow">←</div>
+                    <div class="flow-node">战斗难度<span class="tag tag-friction">养成瓶颈</span></div>
+                    <div class="flow-arrow">←</div>
+                    <div class="flow-node">角色档案<span class="tag tag-excitement">深度交互</span></div>
+                </div>
+            </div>
+            <div style="margin-top: 40px; font-size: 0.85rem; line-height: 1.8; color: #bbb;">
+                <p>● <span style="color:var(--ptn-red)">兴奋点：</span>由高水准立绘与核心审讯剧情触发。</p>
+                <p>● <span>卡点：</span>数值压力陡增章节，需资源配给缓解。</p>
+                <p>● <span>情绪起伏：</span>主线转折是維持玩家长線粘性的核心動能。</p>
+            </div>
+        </div>
+        <div class="footer-note">PAGE 06 / MBCC-USER</div>
+    </div>
+
+    <div class="a4-page" id="page-biz">
+        <div class="section-header">
+            <span>PHASE 05 // COMMERCIAL VALUE</span>
+            <h2>商业化价值与市场营收分析</h2>
+        </div>
+        <div class="content-box">
+            <div style="height: 280px; width: 100%;" id="revenue-chart"></div>
+            <div style="font-size: 0.65rem; color: #666; text-align: right; margin-top: 5px;">数据来源：Sensor Tower & GachaRevenue (2025全球估测)</div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <div class="biz-metric">
+                    <div><span class="biz-label">核心支付力</span><br><span class="biz-value">皮肤限定与养成礼包</span></div>
+                </div>
+                <div class="biz-metric">
+                    <div><span class="biz-label">市场稳定性</span><br><span class="biz-value">长线版本流水峰值稳定</span></div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; border: 1px solid #333; background: rgba(187,10,10,0.02);">
+                <p style="margin: 0; font-size: 0.85rem; line-height: 1.8; color: #ccc;">
+                    <strong>商业逻辑分析：</strong><br>
+                    《无期迷途》在存量市场中展现了极强的<span class="highlight">审美溢价转化率</span>。依靠高质量 L2D 皮肤与深度审讯剧本，其 ARPU 值显著高于同类泛二次元产品。全球营收分布中，中、日、韩及欧美市场呈现出高度的审美共识。
+                </p>
+            </div>
+        </div>
+        <div class="footer-note">PAGE 07 / MBCC-BUSINESS</div>
+    </div>
+
+    <div class="a4-page" id="page-final">
+        <div class="section-header">
+            <span>PHASE 06 // STRATEGIC SUMMARY</span>
+            <h2>核心结论与未来洞察</h2>
+        </div>
+        
+        <div class="content-box" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="margin-bottom: 40px;">
+                <p style="color: var(--ptn-red); font-weight: bold; font-size: 0.9rem;">[ SUMMARY ]</p>
+                <div style="padding: 25px; border: 1px solid var(--ptn-red); background: rgba(187,10,10,0.05); position: relative;">
+                    <span style="position: absolute; top: -10px; left: 20px; background: var(--ptn-panel); padding: 0 10px; color: var(--ptn-red); font-size: 0.7rem;">核心灵魂</span>
+                    <h3 style="margin: 0; color: #fff; line-height: 1.6; letter-spacing: 1px; font-size: 1.25rem;">
+                        《无期迷途》是以“人性与秩序之间的冲突”为核心驱动力，通过高度一致的审美体系与即时交互策略，成功将传统塔防品类从“数值”升华为“精神链接”的破局产品。
+                    </h3>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 40px;">
+                <p style="color: var(--ptn-red); font-weight: bold; font-size: 0.9rem;">[ VALUE EXTRACTION ]</p>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                    <div style="padding: 15px; border-left: 3px solid var(--ptn-red); background: rgba(255,255,255,0.02);">
+                        <strong style="color: #fff;">01 // 极致的叙事一致性</strong>
+                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #aaa;">灾厄体系、角色异能与主线逻辑闭环清晰，实现了“世界观即玩法”的高级统一。</p>
+                    </div>
+                    <div style="padding: 15px; border-left: 3px solid var(--ptn-red); background: rgba(255,255,255,0.02);">
+                        <strong style="color: #fff;">02 // 角色即世界观碎片</strong>
+                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #aaa;">禁闭者不再是孤立的立绘，通过审查系统使每名角色都成为玩家理解世界的深度锚点。</p>
+                    </div>
+                    <div style="padding: 15px; border-left: 3px solid var(--ptn-red); background: rgba(255,255,255,0.02);">
+                        <strong style="color: #fff;">03 // 审美竞争力的代际跨越</strong>
+                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #aaa;">暗黑哥特视觉与精神链接在同质化的二次元市场中形成了极高的识别度与准入门槛。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="border: 1px dashed #555; padding: 25px; background: rgba(0,0,0,0.3);">
+                <p style="color: var(--ptn-red); font-weight: bold; font-size: 0.9rem; margin-top: 0;">[ WHERE TO GO NEXT ]</p>
+                <div style="display: flex; gap: 30px;">
+                    <div style="flex: 1;">
+                        <span style="color: #888; font-size: 0.7rem;">● 潜在风险 (RISK)</span>
+                        <p style="font-size: 0.85rem; color: #eee; margin-top: 5px;">新玩家叙事负担过重，信息入口密度极高，易导致早期流失。</p>
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="color: var(--ptn-red); font-size: 0.7rem;">● 增长机会 (OPPORTUNITY)</span>
+                        <p style="font-size: 0.85rem; color: #eee; margin-top: 5px;">通过摘要式叙事引导与支线触发点优化，可大幅降低理解门槛，拓宽泛泛受众池。</p>
+                    </div>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+                <div style="text-align: center;">
+                    <p style="font-size: 1rem; color: #fff; margin-bottom: 5px;">“机会空间远大于限制因素”</p>
+                    <p style="font-size: 0.8rem; color: var(--ptn-red);">因为它拥有极具扩展性的世界观系统与尚未完全开发的IP外延能量。</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-note">PAGE 08 / FINAL STRATEGY</div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const radarChart = echarts.init(document.getElementById('radar-container'));
+            radarChart.setOption({
+                backgroundColor: 'transparent',
+                legend: {
+                    bottom: 0, textStyle: { color: '#ccc', fontFamily: 'NSimSun' },
+                    data: ['深度叙事', '角色驱动', '策略玩法', '美术欣赏']
+                },
+                radar: {
+                    indicator: [
+                        { name: '主线/审查剧情', max: 10 }, { name: '立绘/设定', max: 10 },
+                        { name: '破碎防线策略', max: 10 }, { name: 'BGM/UI 氛围', max: 10 },
+                        { name: '文本/逻辑', max: 10 }
+                    ],
+                    splitNumber: 4,
+                    axisName: { color: '#888' },
+                    splitLine: { lineStyle: { color: 'rgba(187, 10, 10, 0.2)' } },
+                    axisLine: { lineStyle: { color: 'rgba(187, 10, 10, 0.3)' } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [
+                        { value: [9, 8, 3, 8, 10], name: '深度叙事', itemStyle: {color: '#8e44ad'}, areaStyle: {opacity: 0.1} },
+                        { value: [9, 10, 4, 7, 7], name: '角色驱动', itemStyle: {color: '#bb0a0a'}, areaStyle: {opacity: 0.1} },
+                        { value: [4, 2, 10, 4, 3], name: '策略玩法', itemStyle: {color: '#3498db'}, areaStyle: {opacity: 0.1} },
+                        { value: [6, 10, 2, 10, 5], name: '美术欣赏', itemStyle: {color: '#f1c40f'}, areaStyle: {opacity: 0.1} }
+                    ]
+                }]
+            });
+
+            const bizChart = echarts.init(document.getElementById('revenue-chart'));
+            bizChart.setOption({
+                title: { text: '同类产品月均营收对比 (估算)', textStyle: { color: '#fff', fontSize: 14 } },
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', axisLabel: { color: '#888' }, splitLine: { lineStyle: { color: '#333' } } },
+                yAxis: { type: 'category', data: ['白夜极光', '无期迷途', '重返未来1999', '明日方舟'], axisLabel: { color: '#fff' } },
+                series: [{
+                    name: '营收 (百万美元)',
+                    type: 'bar',
+                    data: [
+                        1.2, 
+                        { value: 3.5, itemStyle: { color: '#bb0a0a' } }, 
+                        5.8, 
+                        9.2
+                    ],
+                    label: { show: true, position: 'right', color: '#fff' }
+                }]
+            });
+        };
+    </script>
+</body>
+</html>
