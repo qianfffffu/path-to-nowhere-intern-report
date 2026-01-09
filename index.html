@@ -133,40 +133,75 @@
          margin: 24px auto;
     object-fit: contain;
 }
-/* 手机端自适应布局 */
+/* 手机端自适应布局 + 字体重设 */
 @media screen and (max-width: 768px) {
+
+    html {
+        font-size: 14px;      /* 调整全局基准字号 */
+    }
 
     body {
         margin: 0;
         padding: 8px;
-        overflow-y: auto;      /* 允许上下滚动 */
-        overflow-x: hidden;    /* 禁止左右滚动 */
-    }
-
-    .a4-page {
-        width: 100%;           /* 占满屏宽 */
-        max-width: 100%;
-        margin: 0 0 16px 0;    /* 每页之间留一点间距 */
-        padding: 16px;         /* 缩小页边距 */
-        box-sizing: border-box;
-        box-shadow: none;      /* 手机上去掉投影，减少压迫感 */
-        border-radius: 0;
-        min-height: auto;      /* 不强制 A4 高度 */
-    }
-
-    /* 标题和正文字号稍微缩小一点，适配手机 */
-    .section-header h1,
-    .section-header {
-        font-size: 1.2rem;
-    }
-
-    p,
-    li {
-        font-size: 0.9rem;
+        overflow-y: auto;
+        overflow-x: hidden;
+        font-size: 1rem;      /* 等于 14px */
         line-height: 1.6;
     }
 
-    /* USP 等布局如果是多列，手机改成一列 */
+    /* 关键：手机端不要再缩放 A4 页面 */
+    .a4-page {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 0 16px 0;
+        padding: 16px;
+        box-sizing: border-box;
+        box-shadow: none;
+        border-radius: 0;
+        min-height: auto;
+        transform: none;          /* 如果你桌面端给 .a4-page 设过 transform，这里直接取消 */
+        transform-origin: center; /* 避免奇怪的缩放基准 */
+    }
+
+    /* 标题字号 */
+    .section-header h1,
+    .section-header {
+        font-size: 1.3rem;   /* ≈ 18px */
+    }
+
+    h1 {
+        font-size: 1.4rem;   /* 19~20px */
+    }
+
+    h2 {
+        font-size: 1.2rem;   /* 16~17px */
+    }
+
+    h3 {
+        font-size: 1.05rem;  /* 15px 左右 */
+    }
+
+    /* 正文和列表 */
+    p,
+    li {
+        font-size: 0.95rem;  /* ≈ 13px，手机上阅读比较舒服 */
+        line-height: 1.6;
+    }
+
+    /* 表格文字稍微缩小一点 */
+    table,
+    th,
+    td {
+        font-size: 0.9rem;
+    }
+
+    /* 如果有标签类的小块元素（tag / highlight），防止字太大挤爆 */
+    .tag,
+    .highlight {
+        font-size: 0.8rem;
+    }
+
+    /* 多列内容在手机端改为一列 */
     .usp-grid {
         display: block;
     }
@@ -176,13 +211,14 @@
         margin-bottom: 12px;
     }
 
-    /* 水印在手机上可以弱化或者直接隐藏，避免太挤 */
+    /* 手机端水印弱化，避免太抢眼 */
     .bg-watermark {
-        opacity: 0.25;      /* 想完全关掉就改成 display:none; */
+        opacity: 0.25;      /* 想直接隐藏就改成 display: none; */
         width: 70%;
         height: 70%;
     }
 }
+
 
         /* --- 新增金字塔 CSS --- */
         .pyramid-wrapper {
