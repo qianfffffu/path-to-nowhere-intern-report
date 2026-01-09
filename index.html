@@ -57,9 +57,10 @@
             border: 1px solid #333;
             background: rgba(255,255,255,0.01);
             padding: 20px; height: 100%;
-            overflow: hidden;
-            position: relative;
-        }
+            overflow-y: auto;         /* 允许上下滚动 */
+         overflow-x: visible;      /* 横向不要裁掉内容 */
+         position: relative;
+    }
 
         /* 目录特有样式 */
         .toc-list { list-style: none; padding: 0; margin-top: 50px; }
@@ -135,7 +136,16 @@
 }
 /* 手机端自适应布局 + 字体重设 */
 @media screen and (max-width: 768px) {
+     #page-01 h1 {
+    font-size: 2rem !important;   /* 手机约 28px */
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+    }
 
+     #page-01 h3 {
+    font-size: 1rem !important;
+}
     html {
         font-size: 14px;      /* 调整全局基准字号 */
     }
@@ -165,7 +175,7 @@
 
     /* 标题字号 */
     .section-header h1,
-    .section-header {
+    .section-header h2 {
         font-size: 1.3rem;   /* ≈ 18px */
     }
 
@@ -217,6 +227,20 @@
         width: 70%;
         height: 70%;
     }
+    /* ---- 手机端：宽模块可横向滑动 ---- */
+     #radar-container,
+     .flow-container,
+     .flow-row,
+     table {
+    overflow-x: auto !important;
+    display: block !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+     /* 确保内部内容有宽度可滑动 */
+     .flow-row { min-width: 600px; }
+     table tbody { min-width: 600px; }
+     #radar-container canvas { min-width: 480px; }
 }
 
 
