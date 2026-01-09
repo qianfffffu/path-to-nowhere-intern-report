@@ -241,6 +241,19 @@
      .flow-row { min-width: 600px; }
      table tbody { min-width: 600px; }
      #radar-container canvas { min-width: 480px; }
+     /* 雷达图固定宽高比例，避免变形 */
+     #radar-container {
+      position: relative;
+      width: 100%;
+      height: auto;
+     overflow-x: auto;               /* 如果仍超宽可滑动 */
+}
+
+#radar-container canvas {
+    width: 100% !important;         /* 按容器宽度等比缩放 */
+    height: auto !important;        /* 自动保持比例 */
+    max-width: 500px;               /* 你原画布宽度可据情况调 */
+}
 }
 
 
