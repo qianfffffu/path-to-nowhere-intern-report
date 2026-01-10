@@ -235,7 +235,7 @@
     overflow-x: auto !important;
     display: block !important;
     -webkit-overflow-scrolling: touch;
-   }
+    }
 
      /* 确保内部内容有宽度可滑动 */
      .flow-row { min-width: 600px; }
@@ -252,16 +252,16 @@
     }
 
 #radar-container canvas {
-    width: 100% !important;
-    height: auto !important;
-    max-width: 480px;            /* 与最小宽互补 */
-    transform-origin: top left;  /* 避免压扁中心 */
-}
+     width: 100% !important;
+     height: auto !important;
+     max-width: 480px;            /* 与最小宽互补 */
+     transform-origin: top left;  /* 避免压扁中心 */
+    }
 /* ---- 玩家体验路径 Flow 模块手机端排版修正 ---- */
 .flow-container {
-    flex-direction: column;       /* 整体竖排 */
-    align-items: flex-start;      /* 左对齐 */
-    gap: 1rem;
+     flex-direction: column;       /* 整体竖排 */
+     align-items: flex-start;      /* 左对齐 */
+     gap: 1rem;
 }
 
 .flow-row {
@@ -281,7 +281,35 @@
 .flow-arrow {
     display: none;                /* 箭头隐藏：手机竖排不需要 */
 }
+/* 让雷达图容器可缩放 */
+    #radar-container {
+        width: 100%;
+        overflow-x: auto;   /* 如果太宽可横向拖动 */
+    }
 
+    #radar-container canvas {
+        width: 100% !important;   /* 画布等比例缩小 */
+        height: auto !important;
+        min-width: unset !important; /* 覆盖你之前的 480px */
+        max-width: 600px; 
+    }
+
+    /* ==========================
+       玩家体验路径模块布局修复
+       ========================== */
+    .flow-container {
+        width: 100%;
+        overflow-x: auto;   /* 避免挤压变形 */
+    }
+
+    .flow-row {
+        min-width: 500px;  /* 必要时可横向拖动，防止换行错乱 */
+    }
+
+    table tbody {
+        min-width: 500px;
+    }
+}
 
         /* --- 新增金字塔 CSS --- */
         .pyramid-wrapper {
