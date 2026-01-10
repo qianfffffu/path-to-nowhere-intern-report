@@ -235,25 +235,51 @@
     overflow-x: auto !important;
     display: block !important;
     -webkit-overflow-scrolling: touch;
-  }
+   }
 
      /* 确保内部内容有宽度可滑动 */
      .flow-row { min-width: 600px; }
      table tbody { min-width: 600px; }
      #radar-container canvas { min-width: 480px; }
-     /* 雷达图固定宽高比例，避免变形 */
+     /* ---- 雷达图防变形：宽度缩放，高度跟随 ---- */
      #radar-container {
-      position: relative;
-      width: 100%;
-      height: auto;
-     overflow-x: auto;               /* 如果仍超宽可滑动 */
-}
+         position: relative;
+         width: 100%;
+         height: auto;
+         overflow-x: auto;
+         -webkit-overflow-scrolling: touch;
+         white-space: nowrap;
+    }
 
 #radar-container canvas {
-    width: 100% !important;         /* 按容器宽度等比缩放 */
-    height: auto !important;        /* 自动保持比例 */
-    max-width: 500px;               /* 你原画布宽度可据情况调 */
+    width: 100% !important;
+    height: auto !important;
+    max-width: 480px;            /* 与最小宽互补 */
+    transform-origin: top left;  /* 避免压扁中心 */
 }
+/* ---- 玩家体验路径 Flow 模块手机端排版修正 ---- */
+.flow-container {
+    flex-direction: column;       /* 整体竖排 */
+    align-items: flex-start;      /* 左对齐 */
+    gap: 1rem;
+}
+
+.flow-row {
+    flex-direction: column;       /* 每层竖排排列 */
+    width: 100%;
+    min-width: unset !important;  /* 取消宽度限制 */
+    gap: 0.8rem;
+}
+
+.flow-node {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+.flow-arrow {
+    display: none;                /* 箭头隐藏：手机竖排不需要 */
 }
 
 
